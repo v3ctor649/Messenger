@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <!------ Include the above in your HEAD tag ---------->
+    <link rel="stylesheet" href="{% static 'css/main_page.css'%}" type="text/css">
+</head>
+
+<body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <div class="container app">
+        <div class="row app-one">
+            <div class="col conversation">
+                <div class="row heading">
+                    <div class="col-sm-8 col-xs-7 heading-name">
+                        <a class="heading-name-meta">Чат
+                        </a>
+                    </div>
+                </div>
+                <div class="row message" id="conversation">
+                    <div v-for="message in message_list" class="row message-body">
+                        <div v-if="username==[[message.name]]" class="col-sm-12 message-main-sender">
+                            <div v-if="username==[[message.name]]" class="sender">
+                                <div class="message-text">
+                                    [[message.message]]
+                                </div>
+                                <span class="message-time pull-right">
+                                    [[message.name]]
+                                </span>
+                            </div>
+                        </div>
+                        <div v-if="username!=[[message.name]]" class="col-sm-12 message-main-receiver">
+                            <div v-if="username!=[[message.name]]" class="receiver">
+                                <div class="message-text">
+                                    [[message.message]]
+                                </div>
+                                <span class="message-time pull-right">
+                                    [[message.name]]
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row reply">
+                    <div class="col-sm-11 col-xs-11 reply-main">
+                        <textarea v-on:keyup.enter="addMessage" v-model="my_case" type="text" class="form-control" rows="1"
+                            id="comment"></textarea>
+                    </div>
+                    <div class="col-sm-1 col-xs-1 reply-send">
+                        <i v-on:click="addMessage" class="fa fa-send fa-2x" aria-hidden="true"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let a = new Vue({
+            el: '.conversation',
+            delimiters: ["[[", "]]"],
+            data:
+            {
+                my_case: '',
+                message_list: [],
+                room_name: 'chat',
+                chatSocket: null,
+                username: "{{username}}"
+            },
+            mounted() {
+                axios
+                    .get('json/')
+                    .then(response => (this.message_list = response.data));
+                this.$nextTick(
+                    function () {
+                        block = document.getElementById("conversation");
+                        block.scrollTop = block.scrollHeight;
+                    })
+                this.chatSocket = new WebSocket(
+                    'ws://'
+                    + window.location.host
+                    + '/ws/chat/'
+                    + 'chat'
+                    + '/'
+                );
+                this.chatSocket.onmessage = (event) => {
+                    this.message_list.push(
+                        {
+                            'name': JSON.parse(event.data).name,
+                            'message': JSON.parse(event.data).message,
+                        });
+                    this.$nextTick(
+                        function () {
+                            block = document.getElementById("conversation");
+                            block.scrollTop = block.scrollHeight;
+                        })
+                };
+            },
+            methods:
+            {
+                addMessage() {
+                    if (this.my_case.trim() == '') {
+                    }
+                    else {
+                        this.chatSocket.send(JSON.stringify({
+                            'message': this.my_case,
+                            'name': this.username,
+                            'room': this.room_name
+                        }));
+                        this.my_case = '';
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

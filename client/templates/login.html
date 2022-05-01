@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <!------ Include the above in your HEAD tag ---------->
+    <link rel="stylesheet" href="{% static 'css/login.css'%}" type="text/css">
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="text-center mt-4 name">
+            Чат
+        </div>
+        <form class="p-3 mt-3" method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="form-field d-flex align-items-center">
+                {{ form.username }}
+            </div>
+            <div class="form-field d-flex align-items-center">
+                {{ form.password }}
+            </div>
+            <input class="btn mt-3" type="submit" value="Войти" />
+        </form>
+    </div>
+</body>
+
+</html>
